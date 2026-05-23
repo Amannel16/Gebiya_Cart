@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gebiya | Secure Order</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="loader-wrapper" id="loaderWrapper">
+    <div class="loader"></div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <header class="header">
+    <div class="container nav">
+      <a href="index.html#home" class="logo">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span>Gebiya</span>
+      </a>
+
+      <nav class="nav-links" id="navLinks">
+        <a href="index.html#home">Home</a>
+        <a href="index.html#products">Products</a>
+        <a href="index.html#features">Features</a>
+        <a href="cart.html">Cart</a>
+        <a href="secure-order.html">Secure Order</a>
+        <a href="index.html#orders">Orders</a>
+      </nav>
+
+      <div class="language-select-wrap">
+        <i class="fa-solid fa-language"></i>
+        <select id="languageSelector" aria-label="Select language">
+          <option value="en">English</option>
+          <option value="am">Amharic</option>
+          <option value="om">Afan Oromo</option>
+          <option value="ti">Tigray</option>
+        </select>
+      </div>
+
+      <div class="nav-actions">
+        <button class="icon-btn" id="wishlistBtn" title="Wishlist" type="button">
+          <i class="fa-regular fa-heart"></i>
+          <span class="count-badge" id="wishlistCount">0</span>
+        </button>
+        <button class="icon-btn" id="cartBtn" title="Cart" type="button">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span class="count-badge" id="cartCount">0</span>
+        </button>
+        <div id="authSection">
+          <button onclick="openAuthModal()" class="primary-btn" type="button">Login</button>
+        </div>
+        <button class="menu-btn" id="menuBtn" aria-label="Toggle Menu" type="button">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <button id="themeToggle" class="icon-btn" type="button">🌙</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="checkout section page-section" id="checkout">
+      <div class="container checkout-layout">
+        <div class="checkout-form-box">
+          <div class="section-heading left-align">
+            <span>Secure Order</span>
+            <h2>Checkout</h2>
+            <p>Fill in your details to place your order successfully.</p>
+          </div>
+
+          <form id="checkoutForm" class="checkout-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" placeholder="Enter full name" required />
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" placeholder="Enter phone number" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="Enter email address" required />
+              </div>
+              <div class="form-group">
+                <label for="city">City</label>
+                <input type="text" id="city" placeholder="Enter city" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="address">Address</label>
+              <textarea id="address" rows="4" placeholder="Enter full address" required></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="pincode">Pincode</label>
+                <input type="text" id="pincode" placeholder="Enter pincode" required />
+              </div>
+              <div class="form-group">
+                <label for="paymentMethod">Payment Method</label>
+                <select id="paymentMethod" required>
+                  <option value="">Select payment method</option>
+                  <option value="telebirr">TeleBirr</option>
+                  <option value="chapa">Chapa</option>
+                  <option value="santimpay">SantimPay</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" class="place-order-btn">Place Order</button>
+          </form>
+        </div>
+
+        <div class="checkout-summary-box">
+          <div class="panel-header">
+            <h2><i class="fa-solid fa-box"></i> Final Summary</h2>
+          </div>
+          <div class="mini-summary">
+            <div class="bill-row"><span>Items</span><span id="checkoutItemsCount">0</span></div>
+            <div class="bill-row"><span>Subtotal</span><span id="checkoutSubtotal">ETB 0</span></div>
+            <div class="bill-row"><span>Discount</span><span id="checkoutDiscount">ETB 0</span></div>
+            <div class="bill-row"><span>GST</span><span id="checkoutGST">ETB 0</span></div>
+            <div class="bill-row"><span>Delivery</span><span id="checkoutDelivery">ETB 0</span></div>
+            <div class="bill-row total-row"><span>Total Payable</span><span id="checkoutTotal">ETB 0</span></div>
+          </div>
+          <a href="cart.html" class="secondary-btn page-link-btn">Back to Cart</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="success-modal-overlay" id="successModal">
+    <canvas id="confettiCanvas"></canvas>
+    <div class="success-modal-box">
+      <div class="success-icon">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <h2>Order Placed Successfully!</h2>
+      <p>Thank you for shopping with Gebiya. Your order has been confirmed.</p>
+      <button id="continueShoppingBtn" class="primary-btn" type="button">View Orders</button>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container footer-content">
+      <div>
+        <h3>Gebiya</h3>
+        <p>Premium e-commerce internship project built with clean UI, smooth UX, authentication, MongoDB orders, and real shopping flow.</p>
+      </div>
+      <div class="footer-links">
+        <a href="index.html#home">Home</a>
+        <a href="index.html#products">Products</a>
+        <a href="cart.html">Cart</a>
+        <a href="secure-order.html">Secure Order</a>
+        <a href="index.html#orders">Orders</a>
+      </div>
+      <div class="footer-socials">
+        <a href="#"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+        <a href="#"><i class="fa-brands fa-github"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <nav class="mobile-bottom-nav" aria-label="Mobile bottom navigation">
+    <a href="index.html#home"><i class="fa-solid fa-house"></i><span>Home</span></a>
+    <a href="index.html#products"><i class="fa-solid fa-store"></i><span>Shop</span></a>
+    <a href="cart.html" class="mobile-nav-cart">
+      <i class="fa-solid fa-cart-shopping"></i>
+      <span>Cart</span>
+      <small id="mobileCartCount">0</small>
+    </a>
+    <a href="secure-order.html"><i class="fa-solid fa-credit-card"></i><span>Secure Order</span></a>
+    <a href="index.html#orders"><i class="fa-solid fa-box"></i><span>Orders</span></a>
+  </nav>
+
+  <div class="auth-modal" id="authModal">
+    <div class="auth-box">
+      <span class="close-auth" onclick="closeAuthModal()">&times;</span>
+      <div class="auth-tabs">
+        <button id="loginTab" class="active" onclick="switchTab('login')" type="button">Login</button>
+        <button id="registerTab" onclick="switchTab('register')" type="button">Register</button>
+      </div>
+      <form id="loginForm" class="auth-form">
+        <h2>Welcome Back</h2>
+        <input type="email" id="loginEmail" placeholder="Email" required />
+        <input type="password" id="loginPassword" placeholder="Password" required />
+        <button type="submit" class="auth-btn">Login</button>
+      </form>
+      <form id="registerForm" class="auth-form hidden">
+        <h2>Create Account</h2>
+        <input type="text" id="registerName" placeholder="Full Name" required />
+        <input type="email" id="registerEmail" placeholder="Email" required />
+        <input type="password" id="registerPassword" placeholder="Password" required />
+        <button type="submit" class="auth-btn">Register</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="toastContainer"></div>
+  <script src="script.js"></script>
+</body>
+</html>
