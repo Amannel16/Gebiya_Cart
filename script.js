@@ -890,7 +890,7 @@ const GST_RATE = 0.18;
 const DELIVERY_CHARGE = 99;
 const COUPON_CODE = "SAVE10";
 const COUPON_DISCOUNT_RATE = 0.1;
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = (window._env_ && window._env_.API_BASE_URL) || "http://localhost:5000";
 
 const productGrid = document.getElementById("productGrid");
 const cartItems = document.getElementById("cartItems");
