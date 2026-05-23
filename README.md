@@ -66,6 +66,12 @@ http://localhost:5000
 
 The frontend reads the backend API URL from `env-config.js`.
 
+Local builds use this fallback when no frontend API variable is set:
+
+```text
+http://localhost:5000
+```
+
 For deployment, set this variable in Netlify:
 
 ```text

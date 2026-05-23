@@ -890,7 +890,59 @@ const GST_RATE = 0.18;
 const DELIVERY_CHARGE = 99;
 const COUPON_CODE = "SAVE10";
 const COUPON_DISCOUNT_RATE = 0.1;
-const API_BASE_URL = (window._env_ && window._env_.API_BASE_URL) || "http://localhost:5000";
+const API_BASE_URL = (() => {
+  if (window._env_ && window._env_.API_BASE_URL && window._env_.API_BASE_URL.trim()) {
+    return window._env_.API_BASE_URL.trim();
+  }
+
+  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    return "http://localhost:5000";
+  }
+
+  console.error(
+    "API_BASE_URL is not configured. Set FRONTEND_API_URL (or API_URL/BACKEND_URL) in Netlify environment variables."
+  );
+  return "";
+})();
+
+function assertApiBaseUrl() {
+  if (!API_BASE_URL) {
+    throw new Error(
+      "API_BASE_URL is missing. Set FRONTEND_API_URL (or API_URL/BACKEND_URL) in Netlify environment variables."
+    );
+  }
+  return API_BASE_URL;
+}
+
+function hideLoader() {
+  if (loaderWrapper) {
+    loaderWrapper.classList.add("hide");
+  }
+}
+
+async function fetchJson(url, options) {
+  let response;
+
+  try {
+    response = await fetch(url, options);
+  } catch (error) {
+    throw new Error(
+      `Cannot connect to the backend API at ${API_BASE_URL}. Start the backend with "cd backend" then "npm run dev", or set the deployed API URL in env-config.`
+    );
+  }
+
+  const bodyText = await response.text();
+
+  if (!response.ok) {
+    throw new Error(`Request failed ${response.status}: ${bodyText}`);
+  }
+
+  try {
+    return JSON.parse(bodyText);
+  } catch (err) {
+    throw new Error(`Invalid JSON response: ${bodyText}`);
+  }
+}
 
 const productGrid = document.getElementById("productGrid");
 const cartItems = document.getElementById("cartItems");
@@ -1668,8 +1720,7 @@ async function loadOrdersFromBackend() {
       </div>
     `;
 
-    const response = await fetch(`${API_BASE_URL}/api/orders`);
-    const result = await response.json();
+    const result = await fetchJson(`${assertApiBaseUrl()}/api/orders`);
 
     if (!result.success) {
       throw new Error(result.message || "Failed to fetch orders");
@@ -1702,7 +1753,7 @@ async function clearAllOrdersFromBackend() {
   try {
     for (const order of orders) {
       if (order._id) {
-        await fetch(`${API_BASE_URL}/api/orders/${order._id}`, {
+        await fetchJson(`${assertApiBaseUrl()}/api/orders/${order._id}`, {
           method: "DELETE"
         });
       }
@@ -1719,13 +1770,11 @@ async function clearAllOrdersFromBackend() {
 
 async function deleteOrder(id) {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/orders/${id}`, {
+    const result = await fetchJson(`${assertApiBaseUrl()}/api/orders/${id}`, {
       method: "DELETE"
     });
 
-    const result = await response.json();
-
-    if (!response.ok || !result.success) {
+    if (!result.success) {
       throw new Error(result.message || "Failed to delete order");
     }
 
@@ -1739,7 +1788,7 @@ async function deleteOrder(id) {
 
 async function updateOrderStatus(id, newStatus) {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/orders/${id}`, {
+    const result = await fetchJson(`${assertApiBaseUrl()}/api/orders/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
@@ -1747,9 +1796,7 @@ async function updateOrderStatus(id, newStatus) {
       body: JSON.stringify({ status: newStatus })
     });
 
-    const result = await response.json();
-
-    if (!response.ok || !result.success) {
+    if (!result.success) {
       throw new Error(result.message || "Failed to update status");
     }
 
@@ -1800,7 +1847,7 @@ async function placeOrder(e) {
   };
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/orders`, {
+    const result = await fetchJson(`${assertApiBaseUrl()}/api/orders`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -1808,9 +1855,7 @@ async function placeOrder(e) {
       body: JSON.stringify(orderData)
     });
 
-    const result = await response.json();
-
-    if (!response.ok || !result.success) {
+    if (!result.success) {
       throw new Error(result.message || "Failed to place order");
     }
 
@@ -2262,6 +2307,10 @@ window.addEventListener("load", () => {
   }, 700);
 });
 
+window.addEventListener("DOMContentLoaded", () => {
+  setTimeout(hideLoader, 500);
+});
+
 if (searchInput) searchInput.addEventListener("input", filterAndSortProducts);
 if (categoryFilter) categoryFilter.addEventListener("change", filterAndSortProducts);
 if (sortOption) sortOption.addEventListener("change", filterAndSortProducts);
@@ -2323,8 +2372,19 @@ if (wishlistBtn) {
 }
 
 if (menuBtn && navLinks) {
+  menuBtn.setAttribute("aria-expanded", "false");
+
   menuBtn.addEventListener("click", () => {
-    navLinks.classList.toggle("show");
+    const isOpen = navLinks.classList.toggle("show");
+    menuBtn.setAttribute("aria-expanded", String(isOpen));
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!navLinks.classList.contains("show")) return;
+    if (navLinks.contains(event.target) || menuBtn.contains(event.target)) return;
+
+    navLinks.classList.remove("show");
+    menuBtn.setAttribute("aria-expanded", "false");
   });
 }
 
@@ -2332,6 +2392,7 @@ if (navLinks) {
   navLinks.querySelectorAll("a").forEach((link) => {
     link.addEventListener("click", () => {
       navLinks.classList.remove("show");
+      menuBtn?.setAttribute("aria-expanded", "false");
     });
   });
 }
@@ -2383,25 +2444,23 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        const response = await fetchJson(`${assertApiBaseUrl()}/api/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(user)
         });
 
-        const data = await response.json();
-
-        if (data.success) {
-          localStorage.setItem("GebiyaUser", JSON.stringify(data.user));
+        if (response.success) {
+          localStorage.setItem("GebiyaUser", JSON.stringify(response.user));
           showToast(t("toastLoginSuccess"), "success");
           closeAuthModal();
           renderAuthSection();
         } else {
-          showToast(data.message || t("toastLoginFailed"), "error");
+          showToast(response.message || t("toastLoginFailed"), "error");
         }
       } catch (error) {
         console.error("Login error:", error);
-        showToast(t("toastServerError"), "error");
+        showToast(error.message || t("toastServerError"), "error");
       }
     });
   }
@@ -2417,23 +2476,21 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        const response = await fetchJson(`${assertApiBaseUrl()}/api/auth/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(user)
         });
 
-        const data = await response.json();
-
-        if (data.success) {
+        if (response.success) {
           showToast(t("toastRegisterSuccess"), "success");
           switchTab("login");
         } else {
-          showToast(data.message || t("toastRegisterFailed"), "error");
+          showToast(response.message || t("toastRegisterFailed"), "error");
         }
       } catch (error) {
         console.error("Register error:", error);
-        showToast(t("toastServerError"), "error");
+        showToast(error.message || t("toastServerError"), "error");
       }
     });
   }
