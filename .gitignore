@@ -1,0 +1,4 @@
+dist/
+env-config.js
+server-out.log
+server-err.log

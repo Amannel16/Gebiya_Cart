@@ -12,7 +12,23 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+const allowedOrigins = [
+  "https://gebiya.netlify.app",
+  "http://localhost:3000",
+  "http://localhost:5000"
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS policy: This origin is not allowed."));
+      }
+    }
+  })
+);
 app.use(express.json());
 
 // MongoDB Connection

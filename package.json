@@ -1,0 +1,10 @@
+{
+  "name": "gebiya-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "build": "node scripts/build-netlify.js",
+    "dev": "node scripts/generate-env.js && node static-server.js"
+  }
+}

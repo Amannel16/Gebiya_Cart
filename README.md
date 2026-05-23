@@ -1,72 +1,141 @@
-# Gebiya 🚀
+# Gebiya
 
-A modern full-stack e-commerce web application focused on premium UI/UX, responsive design, real-time backend integration, and production-style cloud deployment.
+Gebiya is a responsive Ethiopian cultural e-commerce app. The frontend is a static multi-page JavaScript app, and the backend is an Express/MongoDB API for authentication and order storage.
 
----
+## Features
 
-## 🌐 Live Demo
+- Ethiopian cultural product catalog with matching cultural item images
+- Product search, category filtering, sorting, wishlist, quick view, and cart
+- Separate Shopping Cart page: `cart.html`
+- Separate Secure Order page: `secure-order.html`
+- Checkout flow with TeleBirr, Chapa, and SantimPay payment options
+- Ethiopian Birr pricing using `ETB`
+- Local language selector: English, Amharic, Afan Oromo, and Tigray/Tigrinya
+- Dark mode, mobile bottom navigation, responsive mobile layout
+- Backend order history and order status management through MongoDB
 
-🔗 https://Gebiya-git-master-amolr-cs-projects.vercel.app
-
----
-
-## 📌 Overview
-
-Gebiya is a fully deployed e-commerce platform developed to simulate a real-world online shopping experience.  
-The project combines modern frontend aesthetics with scalable backend architecture and cloud database integration.
-
-This application was built to strengthen practical knowledge in:
-
-- Full-stack web development
-- API integration
-- Cloud deployment workflows
-- Responsive UI engineering
-- Backend architecture & debugging
-
----
-
-## ✨ Key Features
-
-- Premium responsive UI/UX
-- Modern glassmorphism-inspired interface
-- Smooth dark mode experience 🌙
-- Dynamic cart & wishlist management 🛒
-- Interactive animations & transitions ⚡
-- Toast notifications & micro-interactions 🔔
-- Dynamic order management workflow
-- Skeleton loading effects
-- REST API integration
-- MongoDB cloud database connectivity ☁️
-- Production deployment using Render & Vercel 🚀
-- Mobile-first responsive design 📱
-
----
-
-## 🛠️ Tech Stack
-
-### Frontend
-- HTML5
-- CSS3
-- JavaScript
-
-### Backend
-- Node.js
-- Express.js
-
-### Database
-- MongoDB Atlas
-
-### Deployment & Tools
-- Git & GitHub
-- Render
-- Vercel
-
----
-
-## 🏗️ Architecture
+## Project Structure
 
 ```text
-Frontend  →  Vercel
-Backend   →  Render
-Database  →  MongoDB Atlas
-# Gebiya_Cart
+.
+├── index.html              # Home, products, wishlist, orders
+├── cart.html               # Shopping cart and order summary
+├── secure-order.html       # Secure order / checkout form
+├── style.css               # Shared frontend styles
+├── script.js               # Shared frontend app logic
+├── env-config.js           # Generated frontend API config, ignored by git
+├── static-server.js        # Local static server
+├── netlify.toml            # Netlify frontend deployment config
+├── scripts/
+│   ├── build-netlify.js    # Creates dist/ for Netlify
+│   └── generate-env.js     # Writes env-config.js
+└── backend/
+    ├── server.js
+    ├── models/
+    └── package.json
+```
+
+## Run Locally
+
+Start the frontend with a local HTTP server. Do not open `index.html` directly with `file://`.
+
+```powershell
+npm run dev
+```
+
+Open:
+
+```text
+http://127.0.0.1:5500
+```
+
+Start the backend separately:
+
+```powershell
+cd backend
+node server.js
+```
+
+For local frontend API calls, the default backend URL is:
+
+```text
+http://localhost:5000
+```
+
+## Environment Variables
+
+The frontend reads the backend API URL from `env-config.js`.
+
+For deployment, set this variable in Netlify:
+
+```text
+FRONTEND_API_URL=https://your-backend-domain.example.com
+```
+
+The backend needs its own MongoDB connection in `backend/.env`:
+
+```text
+MONGO_URI=mongodb+srv://...
+PORT=5000
+```
+
+Do not publish `backend/.env`.
+
+## Deploy Frontend To Netlify
+
+This project is configured so Netlify publishes only the generated `dist/` folder, not the full repository. That keeps backend files and private env files out of the deployed frontend.
+
+Netlify settings:
+
+```text
+Build command: npm run build
+Publish directory: dist
+```
+
+Or let Netlify read `netlify.toml`, which already uses:
+
+```text
+command = "node scripts/build-netlify.js"
+publish = "dist"
+```
+
+Required Netlify environment variable:
+
+```text
+FRONTEND_API_URL=https://your-backend-api-url
+```
+
+## Backend API
+
+The frontend expects these backend routes:
+
+```text
+POST /api/auth/register
+POST /api/auth/login
+GET  /api/orders
+POST /api/orders
+GET  /api/orders/:id
+PUT  /api/orders/:id
+DELETE /api/orders/:id
+```
+
+## Build Check
+
+Run:
+
+```powershell
+npm run build
+```
+
+This creates:
+
+```text
+dist/
+├── index.html
+├── cart.html
+├── secure-order.html
+├── style.css
+├── script.js
+├── env-config.js
+└── _redirects
+```
