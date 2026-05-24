@@ -75,7 +75,7 @@ http://localhost:5000
 For deployment, set this variable in Netlify:
 
 ```text
-FRONTEND_API_URL=https://your-backend-domain.example.com
+FRONTEND_API_URL=https://gebiya.netlify.app
 ```
 
 The backend needs its own MongoDB connection in `backend/.env`:
